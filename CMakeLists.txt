@@ -1,189 +1,153 @@
-# use cmake 2.8 or later
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required(VERSION 3.20)
 
-project(numi-beam-sim-g4numi)
-
-# cetbuildtools contains our cmake modules
-SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
-if (NOT CETBUILDTOOLS_VERSION)
-    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
-endif()
-
-set(CMAKE_MODULE_PATH $ENV{CANVAS_DIR}/Modules
-                      $ENV{CETBUILDTOOLS_DIR}/Modules
-                      ${CMAKE_MODULE_PATH})
-
-include(CetCMakeEnv)
-cet_cmake_env()
-
-set_install_root()
-
-cet_set_compiler_flags(DIAGS CAUTIOUS
-  #WERROR
-  NO_UNDEFINED
-  EXTRA_FLAGS -Wno-pedantic -Wno-unused-local-typedefs -Wno-narrowing -Wno-deprecated-declarations -Wno-unused-variable -Wno-missing-braces -Wno-undefined-var-template
-  EXTRA_CXX_FLAGS
+project(g4numi
+  VERSION 0.1.0
+  LANGUAGES CXX
 )
 
-cet_enable_asserts()
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# issue 5589: if we are not in a debugging build, disable the dispatch of debug messages in messagefacility
-string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC )
-if( ${BTYPE_UC} STREQUAL "OPT" OR
-    ${BTYPE_UC} STREQUAL "PROF" OR
-    ${BTYPE_UC} STREQUAL "RELEASE" OR
-    ${BTYPE_UC} STREQUAL "MINSIZEREL" )
-  message ( STATUS "Disabling LOG_DEBUG from messagefacility library" )
-  add_definitions(-DML_NDEBUG)
+include(GNUInstallDirs)
+
+# Set CMAKE_INSTALL_DATAROOTDIR to a reasonable default if not already set by the user or CMake presets.
+if(NOT CMAKE_INSTALL_DATADIR OR CMAKE_INSTALL_DATADIR STREQUAL "")
+  set(CMAKE_INSTALL_DATADIR "${CMAKE_INSTALL_DATAROOTDIR}" CACHE PATH "Data install dir" FORCE)
 endif()
 
-add_definitions( -DCMAKEBUILD )
+# Build type default
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Choose the type of build." FORCE)
+endif()
 
-cet_report_compiler_flags()
+# Options
+option(G4NUMI_WITH_GEANT4_UIVIS "Build with Geant4 UI and Vis drivers" ON)
+option(G4NUMI_ENABLE_ASSERTS    "Keep asserts enabled even in Release-like builds" ON)
+option(G4NUMI_NO_UNDEFINED      "Link with --no-undefined on ELF platforms" ON)
+option(G4NUMI_BUILD_UPS_FILES   "Install legacy UPS metadata (not recommended)" OFF)
 
-# these are minimum required versions, not the actual product versions
-# put products in this list that you want to have set up with
-# their environment by ups
-find_ups_product( geant4         v4_10_4  )
-find_ups_product( canvas_root_io v1_05_02 )
-find_ups_product( dk2nudata      v01_08_00g )
+set(DK2NUDATA_DIR "" CACHE PATH "Path to dk2nudata (flux files etc). If set, baked into compile defs.")
 
-# GDMLParser in G4Percistency requires access to XERCES_C headers
-find_ups_product( xerces_c )
+# Compile config targets
+add_library(g4numi_build_options INTERFACE)
+add_library(g4numi_warnings      INTERFACE)
 
-find_ups_root( root v6_00_00 )
-
-include(ArtDictionary)
-
-# collect the G4 libraries
-set( ENV{GEANT4_LIB} $ENV{GEANT4_FQ_DIR}/lib )
-#MESSAGE( "Geant4 libraries are in $ENV{GEANT4_LIB}" )
-cet_find_library( G4ANALYSIS           NAMES G4analysis          PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4DIGITS_HITS        NAMES G4digits_hits       PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4ERROR_PROPAGATION  NAMES G4error_propagation PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4EVENT              NAMES G4event             PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4FR                 NAMES G4FR                PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4GEOMETRY           NAMES G4geometry          PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4GL2PS              NAMES G4gl2ps             PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4GLOBAL             NAMES G4global            PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4GMOCREN            NAMES G4GMocren           PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4GRAPHICS_REPS      NAMES G4graphics_reps     PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4INTERCOMS          NAMES G4intercoms         PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4INTERFACES         NAMES G4interfaces        PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4MATERIALS          NAMES G4materials         PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4MODELING           NAMES G4modeling          PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4OPENGL             NAMES G4OpenGL            PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4PARMODELS          NAMES G4parmodels         PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4PARTICLES          NAMES G4particles         PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4PERSISTENCY        NAMES G4persistency       PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4PHYSICSLISTS       NAMES G4physicslists      PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4PROCESSES          NAMES G4processes         PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4RAYTRACER          NAMES G4RayTracer         PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4READOUT            NAMES G4readout           PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4RUN                NAMES G4run               PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4TRACKING           NAMES G4tracking          PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4TRACK              NAMES G4track             PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4TREE               NAMES G4Tree              PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4VISHEPREP          NAMES G4visHepRep         PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4VIS_MANAGEMENT     NAMES G4vis_management    PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4VISXXX             NAMES G4visXXX            PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4VRML               NAMES G4VRML              PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-cet_find_library( G4ZLIM               NAMES G4zlib              PATHS ENV GEANT4_LIB NO_DEFAULT_PATH )
-# PERSISTENCY needs XERCES_C library
-cet_find_library( XERCES_C             NAMES xerces-c            PATHS ENV XERCES_C_LIB NO_DEFAULT_PATH )
-
-set( G4_LIB_LIST ${G4ANALYSIS}
-                 ${G4DIGITS_HITS}
-                 ${G4ERROR_PROPAGATION}
-                 ${G4EVENT}
-                 ${G4FR}
-                 ${G4GEOMETRY}
-                 ${G4GL2PS}
-                 ${G4GLOBAL}
-                 ${G4GMOCREN}
-                 ${G4GRAPHICS_REPS}
-                 ${G4INTERCOMS}
-                 ${G4INTERFACES}
-                 ${G4MATERIALS}
-                 ${G4MODELING}
-                 ${G4OPENGL}
-                 ${G4PARMODELS}
-                 ${G4PARTICLES}
-                 ${G4PERSISTENCY}
-                 ${XERCES_C}
-                 ${G4PHYSICSLISTS}
-                 ${G4PROCESSES}
-                 ${G4RAYTRACER}
-                 ${G4READOUT}
-                 ${G4RUN}
-                 ${G4TRACKING}
-                 ${G4TRACK}
-                 ${G4TREE}
-                 ${G4VISHEPREP}
-                 ${G4VIS_MANAGEMENT}
-                 ${G4VISXXX}
-                 ${G4VRML}
-                 ${G4ZLIM}
-   )
-
-#MESSAGE("Geant4 library list is ${G4_LIB_LIST}" )
-
-cet_find_library( CLHEPLIB NAMES CLHEP PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )
-
-# ROOT libraries
-set( ENV{ROOTLIB} $ENV{ROOTSYS}/lib )
-cet_find_library( ROOTCORE       NAMES  Core       PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTCINT       NAMES  Cling      PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTRIO        NAMES  RIO        PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTNET        NAMES  Net        PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTIMT        NAMES  Imt        PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTHIST       NAMES  Hist       PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTGRAF       NAMES  Graf       PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTGRAF3D     NAMES  Graf3d     PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTGPAD       NAMES  Gpad       PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTTREE       NAMES  Tree       PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTRINT       NAMES  Rint       PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTPOSTSCRIPT NAMES  Postscript PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTMATRIX     NAMES  Matrix     PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTPHYSICS    NAMES  Physics    PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTMATHCORE   NAMES  MathCore   PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-cet_find_library( ROOTTHREAD     NAMES  Thread     PATHS ENV ROOTLIB NO_DEFAULT_PATH )
-set(ROOT_BASIC_LIB_LIST ${ROOTCORE}
-                        ${ROOTCINT}
-                        ${ROOTRIO}
-                        ${ROOTNET}
-                        ${ROOTIMT}
-                        ${ROOTHIST}
-                        ${ROOTGRAF}
-                        ${ROOTGRAF3D}
-                        ${ROOTGPAD}
-                        ${ROOTTREE}
-                        ${ROOTRINT}
-                        ${ROOTPOSTSCRIPT}
-                        ${ROOTMATRIX}
-                        ${ROOTPHYSICS}
-                        ${ROOTMATHCORE}
-                        ${ROOTTHREAD}
+target_include_directories(g4numi_build_options INTERFACE
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-# source
 
+# Replicate ML_NDEBUG behavior for Release-like configs (including legacy OPT/PROF)
+target_compile_definitions(g4numi_build_options INTERFACE
+  CMAKEBUILD
+  "$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>,$<CONFIG:Opt>,$<CONFIG:Prof>>:ML_NDEBUG>"
+)
+
+
+if(DK2NUDATA_DIR)
+  # Use a quoted string literal in code
+  target_compile_definitions(g4numi_build_options INTERFACE "DK2NUDATA_DIR=\"${DK2NUDATA_DIR}\"")
+endif()
+
+# Warnings
+target_compile_options(g4numi_warnings INTERFACE
+  "$<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-Wall;-Wextra;-Wshadow;-Wnon-virtual-dtor;-Woverloaded-virtual;-Wpedantic;-Wno-pedantic;-Wno-unused-local-typedefs;-Wno-narrowing;-Wno-deprecated-declarations;-Wno-unused-variable;-Wno-missing-braces;-Wno-undefined-var-template>"
+)
+
+# Asserts
+if(G4NUMI_ENABLE_ASSERTS)
+  target_compile_options(g4numi_build_options INTERFACE
+    "$<$<AND:$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>,$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>,$<CONFIG:Opt>,$<CONFIG:Prof>>>:-UNDEBUG>"
+    "$<$<AND:$<COMPILE_LANG_AND_ID:CXX,MSVC>,$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>,$<CONFIG:Opt>,$<CONFIG:Prof>>>:/UNDEBUG>"
+  )
+endif()
+
+# Linker: NO_UNDEFINED equivalent for ELF
+if(G4NUMI_NO_UNDEFINED AND UNIX AND NOT APPLE)
+  target_link_options(g4numi_build_options INTERFACE -Wl,--no-undefined)
+endif()
+
+# ---- Dependencies ----
+
+# Geant4
+if(G4NUMI_WITH_GEANT4_UIVIS)
+  find_package(Geant4 10.4 REQUIRED COMPONENTS ui_all vis_all gdml)
+else()
+  find_package(Geant4 10.4 REQUIRED COMPONENTS gdml)
+endif()
+
+# XercesC (needed for GDML in many Geant4 builds)
+find_package(XercesC REQUIRED)
+
+# ROOT6+
+set(_root_components
+  Core RIO Net Imt Hist Graf Graf3d Gpad Tree Rint Postscript Matrix Physics MathCore Thread EG
+  Cling
+)
+find_package(ROOT CONFIG REQUIRED COMPONENTS ${_root_components})
+
+# dk2nu
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(DK2NU REQUIRED)
+
+# ---- Consolidate deps into a single INTERFACE target ----
+add_library(g4numi_deps INTERFACE)
+
+# Geant4 package is inconsistent across versions re: imported targets.
+# Use Geant4_LIBRARIES variable (reliable) + include dirs.
+target_include_directories(g4numi_deps INTERFACE ${Geant4_INCLUDE_DIRS})
+target_link_libraries(g4numi_deps INTERFACE ${Geant4_LIBRARIES})
+
+# XercesC
+if(TARGET XercesC::XercesC)
+  target_link_libraries(g4numi_deps INTERFACE XercesC::XercesC)
+else()
+  target_include_directories(g4numi_deps INTERFACE ${XercesC_INCLUDE_DIRS})
+  target_link_libraries(g4numi_deps INTERFACE ${XercesC_LIBRARIES})
+endif()
+
+# ROOT imported targets
+set(_root_targets "")
+foreach(c IN LISTS _root_components)
+  if(TARGET ROOT::${c})
+    list(APPEND _root_targets ROOT::${c})
+  endif()
+endforeach()
+if(NOT _root_targets)
+  message(FATAL_ERROR "ROOT was found but imported targets (ROOT::Core etc.) are missing. Are you using ROOT CONFIG packages?")
+endif()
+target_link_libraries(g4numi_deps INTERFACE ${_root_targets})
+
+# Convenience alias namespace
+add_library(g4numi::build_options ALIAS g4numi_build_options)
+add_library(g4numi::warnings      ALIAS g4numi_warnings)
+add_library(g4numi::deps          ALIAS g4numi_deps)
+
+# ---- Project layout ----
 add_subdirectory(dataProducts)
 add_subdirectory(exec)
-add_subdirectory(include)
 add_subdirectory(macros)
-#add_subdirectory(rndm) # nothing in this directory to do
 add_subdirectory(plot)
 add_subdirectory(src)
 add_subdirectory(studies)
 
-# ups - table and config files
-add_subdirectory(ups)
+if(G4NUMI_BUILD_UPS_FILES)
+  add_subdirectory(ups)
+endif()
 
-# packaging utility
-include(UseCPack)
+# Install headers directly
+if(EXISTS "${PROJECT_SOURCE_DIR}/include")
+  install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+          DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
 
-install_scripts()
+# Install top-level ROOT macros
+if(root_macros)
+  file(GLOB root_macros CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/*.C")
+  install(FILES ${root_macros}
+          DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/macros/root")
+endif()
 
-# install root macros into the ups product
-file(GLOB root_macros *.C)
-install( FILES ${root_macros} DESTINATION ${product}/${version}/macros/root )
+# Optional packaging
+include(CPack)

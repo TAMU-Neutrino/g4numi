@@ -1,20 +1,32 @@
-# FOR CLASSES_DEF.XML!!
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+# src/CMakeLists.txt
 
-include_directories( $ENV{CLHEP_INC}                    )
-include_directories( $ENV{GEANT4_FQ_DIR}/include/Geant4 )
-include_directories( $ENV{DK2NUDATA_INC}                )
-include_directories( $ENV{ROOT_INC}                     )
-include_directories( ${CMAKE_SOURCE_DIR}/include        )
+file(GLOB src_sources CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/*.cc"
+)
 
-cet_find_library( DK2NUTREE NAMES dk2nuTree PATHS ENV DK2NUDATA_LIB NO_DEFAULT_PATH )
+add_library(src SHARED
+  ${src_sources}
+)
 
-cet_make(LIBRARY_NAME  src
-         LIBRARIES     dataProducts
-                       ${DK2NUTREE}
-                       ${G4_LIB_LIST}
-                       ${CLHEPLIB}
-	               ${ROOT_BASIC_LIB_LIST}
-         )
+target_link_libraries(src
+  PUBLIC  dataProducts
+  PUBLIC  g4numi::deps
+  PRIVATE g4numi::build_options g4numi::warnings
+)
 
-install_source()
+target_include_directories(src
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_link_libraries(src PUBLIC DK2NU::dk2nuTree)
+
+# ---- Install ----
+install(TARGETS src
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
