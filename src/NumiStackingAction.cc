@@ -20,7 +20,7 @@
 #include "NumiAnalysis.hh"
 #include "NumiRunManager.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 NumiStackingAction::NumiStackingAction()
 { 

@@ -20,7 +20,7 @@
 #include "G4PVPlacement.hh"
 #include <math.h>
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 static const G4double in = 2.54*CLHEP::cm;
 static const G4double ft = 12.*in;

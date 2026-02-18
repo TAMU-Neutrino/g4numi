@@ -13,7 +13,7 @@
 #include "NumiDataInput.hh"
 #include "NumiDetectorConstruction.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 //magnetic field between conductors ====================================================
 NumiMagneticField::NumiMagneticField():

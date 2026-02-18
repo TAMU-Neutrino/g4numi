@@ -19,7 +19,7 @@
 #include "G4UIcmdWith3VectorAndUnit.hh"
 #include "G4UnitsTable.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 #ifndef FLUGG
   #include "G4GDMLParser.hh"

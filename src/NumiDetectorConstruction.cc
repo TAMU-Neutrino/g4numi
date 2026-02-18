@@ -35,7 +35,7 @@
 #include "G4RunManager.hh"
 #endif
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 NumiDetectorConstruction::NumiDetectorConstruction()
     : fBeamType("Unknown"),

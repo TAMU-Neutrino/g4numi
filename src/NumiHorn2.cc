@@ -18,7 +18,7 @@
 #include "G4FieldManager.hh"
 #include "G4UserLimits.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 static const G4double in=2.54*CLHEP::cm;
 

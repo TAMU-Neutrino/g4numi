@@ -89,18 +89,18 @@ class NumiMagneticField : public G4MagneticField
   public:
     inline void rotateHorn1Field(double bf[3]) const {
       // Silly copy.. 
-      CLHEP::Hep3Vector bLocal(bf[0], bf[1], bf[2]);
+      G4ThreeVector bLocal(bf[0], bf[1], bf[2]);
 //      std::cerr << " Bfield in Local coordinate " << bf[0] 
 //                << " / " << bf[1] << " / "  << bf[2] << std::endl;
-      CLHEP::Hep3Vector bGlobal = fRotMatrixHorn1Container(bLocal);
+      G4ThreeVector bGlobal = fRotMatrixHorn1Container(bLocal);
       bf[0] = bGlobal.x();  bf[1] = bGlobal.y(); bf[2] = bGlobal.z();
 //      std::cerr << " Bfield in Global coordinate " << bf[0] 
 //                << " / " << bf[1] << " / "  << bf[2] << std::endl;
 //		exit(2);
     }
     inline void rotateHorn2Field(double bf[3]) const {
-      CLHEP::Hep3Vector bLocal(bf[0], bf[1], bf[2]);
-      CLHEP::Hep3Vector bGlobal = fRotMatrixHorn2Container(bLocal);
+      G4ThreeVector bLocal(bf[0], bf[1], bf[2]);
+      G4ThreeVector bGlobal = fRotMatrixHorn2Container(bLocal);
       bf[0] = bGlobal.x();  bf[1] = bGlobal.y(); bf[2] = bGlobal.z();
     }
     inline void SetIgnoreCEQBr(bool t) { fIgnoreCEQBr=t; }
@@ -171,18 +171,18 @@ class NumiMagneticFieldIC : public G4MagneticField
     G4RotationMatrix fRotMatrixHorn2Inverse;
     inline void rotateHorn1Field(double bf[3]) const {
       // Silly copy.. 
-      CLHEP::Hep3Vector bLocal(bf[0], bf[1], bf[2]);
+      G4ThreeVector bLocal(bf[0], bf[1], bf[2]);
 //      std::cerr << " Bfield in Local coordinate " << bf[0] 
 //                << " / " << bf[1] << " / "  << bf[2] << std::endl;
-      CLHEP::Hep3Vector bGlobal = fRotMatrixHorn1Container(bLocal);
+      G4ThreeVector bGlobal = fRotMatrixHorn1Container(bLocal);
       bf[0] = bGlobal.x();  bf[1] = bGlobal.y(); bf[2] = bGlobal.z();
 //      std::cerr << " Bfield in Global coordinate " << bf[0] 
 //                << " / " << bf[1] << " / "  << bf[2] << std::endl;
 //		exit(2);
     }
     inline void rotateHorn2Field(double bf[3]) const {
-      CLHEP::Hep3Vector bLocal(bf[0], bf[1], bf[2]);
-      CLHEP::Hep3Vector bGlobal = fRotMatrixHorn2Container(bLocal);
+      G4ThreeVector bLocal(bf[0], bf[1], bf[2]);
+      G4ThreeVector bGlobal = fRotMatrixHorn2Container(bLocal);
       bf[0] = bGlobal.x();  bf[1] = bGlobal.y(); bf[2] = bGlobal.z();
     }
 };
@@ -209,18 +209,18 @@ class NumiMagneticFieldOC : public G4MagneticField
     G4RotationMatrix fRotMatrixHorn2Inverse;
     inline void rotateHorn1Field(double bf[3]) const {
       // Silly copy.. 
-      CLHEP::Hep3Vector bLocal(bf[0], bf[1], bf[2]);
+      G4ThreeVector bLocal(bf[0], bf[1], bf[2]);
 //      std::cerr << " Bfield in Local coordinate " << bf[0] 
 //                << " / " << bf[1] << " / "  << bf[2] << std::endl;
-      CLHEP::Hep3Vector bGlobal = fRotMatrixHorn1Container(bLocal);
+      G4ThreeVector bGlobal = fRotMatrixHorn1Container(bLocal);
       bf[0] = bGlobal.x();  bf[1] = bGlobal.y(); bf[2] = bGlobal.z();
 //      std::cerr << " Bfield in Global coordinate " << bf[0] 
 //                << " / " << bf[1] << " / "  << bf[2] << std::endl;
 //		exit(2);
     }
     inline void rotateHorn2Field(double bf[3]) const {
-      CLHEP::Hep3Vector bLocal(bf[0], bf[1], bf[2]);
-      CLHEP::Hep3Vector bGlobal = fRotMatrixHorn2Container(bLocal);
+      G4ThreeVector bLocal(bf[0], bf[1], bf[2]);
+      G4ThreeVector bGlobal = fRotMatrixHorn2Container(bLocal);
       bf[0] = bGlobal.x();  bf[1] = bGlobal.y(); bf[2] = bGlobal.z();
     }
 };

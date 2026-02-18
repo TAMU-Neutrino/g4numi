@@ -9,7 +9,7 @@
 #include "globals.hh"
 #include "NumiDataInput.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 void NumiDetectorConstruction::DefineMaterials()
 {  

@@ -9,7 +9,7 @@
 #include "NumiDataInput.hh" 
 #include "G4VPhysicalVolume.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 //magnetic field inside the decay pipe ====================================================
 NumiDecayPipeMagneticField::NumiDecayPipeMagneticField()

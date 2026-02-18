@@ -10,7 +10,7 @@
 #include "G4PiData.hh"
 #include "G4HadTmpUtil.hh"
 #include "G4DynamicParticle.hh"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 class G4MinervaPionIXS : public G4VCrossSectionDataSet
 {

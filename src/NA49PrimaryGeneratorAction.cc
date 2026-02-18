@@ -1,5 +1,5 @@
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 #include "NA49PrimaryGeneratorAction.hh"
 #include "G4ParticleGun.hh"
 #include "Randomize.hh"

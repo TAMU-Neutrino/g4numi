@@ -32,7 +32,7 @@
 #include "G4FieldManager.hh"
 #include "G4MagneticField.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 NumiSteppingAction::NumiSteppingAction()
    :fPrintAllSteps(false),

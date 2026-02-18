@@ -1,5 +1,5 @@
 #include "NA49TrackingAction.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "Geant4/CLHEP/Units/SystemOfUnits.h"
 #include "G4Track.hh"
 #include "NA49TrackInfo.hh"
 #include "G4TrackVector.hh"

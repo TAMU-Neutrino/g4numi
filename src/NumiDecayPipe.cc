@@ -25,7 +25,7 @@
 #include "NumiDecayPipeMagneticField.hh"
 #include "G4FieldManager.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 static G4double in=2.54*CLHEP::cm;
 

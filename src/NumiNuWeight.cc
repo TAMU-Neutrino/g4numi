@@ -9,7 +9,7 @@
 #include "NumiNuWeight.hh"
 #include "NumiParticleCode.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 const double rdet = 100.; //in cm
 

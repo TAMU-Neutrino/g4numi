@@ -8,7 +8,7 @@
 #include "G4VCrossSectionDataSet.hh"
 
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 class G4MinervaProtonIXS : public G4VCrossSectionDataSet
 {

@@ -13,7 +13,7 @@
 #include "NumiMagneticField.hh"
 #include "G4FieldManager.hh"
 #include "G4Polycone.hh"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 void NumiDetectorConstruction::ConstructHorns()
 {

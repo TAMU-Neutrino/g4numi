@@ -26,7 +26,7 @@
 #include "G4RunManager.hh"
 #include "G4Run.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 #include "TROOT.h"
 #include <TFile.h>

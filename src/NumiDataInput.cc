@@ -21,7 +21,7 @@
 #include "G4Material.hh"
 #include "G4UnitsTable.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 static const G4double in = 2.54*CLHEP::cm;
 static const G4double fTargetZ0_ref   = -0.35*CLHEP::m; //LE000 position

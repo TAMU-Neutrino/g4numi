@@ -31,7 +31,7 @@
 #include "NumiDataInput.hh"
 #include <math.h>
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 void NumiDetectorConstruction::ConstructHadronAbsorber()
 {

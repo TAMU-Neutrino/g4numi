@@ -14,7 +14,7 @@
 #include "Randomize.hh"
 #include "G4RunManager.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 NumiPrimaryMessenger::NumiPrimaryMessenger(NumiPrimaryGeneratorAction* RA)
   :PrimaryAction (RA)

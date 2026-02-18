@@ -16,7 +16,7 @@
 #include "G4TrajectoryContainer.hh"
 #include "Randomize.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 NumiImpWeight::NumiImpWeight()
 { 

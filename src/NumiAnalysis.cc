@@ -39,7 +39,7 @@
 #include "G4Version.hh"
 
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 //g4numi
 #include "dataProducts/data_t.hh"

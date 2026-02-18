@@ -29,7 +29,7 @@
 #include "G4Transform3D.hh"
 #include "G4RotationMatrix.hh"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "Geant4/CLHEP/Units/PhysicalConstants.h"
 
 void NumiDetectorConstruction::ConstructNOvATarget()
 {
