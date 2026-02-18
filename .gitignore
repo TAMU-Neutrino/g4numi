@@ -16,3 +16,15 @@ CVS
 g4numi
 g4numiCint.o
 libg4numiDict.so
+
+# build files
+/build/
+/build-*/
+/cmake-build-*/
+/**/CMakeFiles/
+/**/CMakeCache.txt
+/**/cmake_install.cmake
+/**/Makefile
+/**/compile_commands.json
+/**/install_manifest.txt
+
