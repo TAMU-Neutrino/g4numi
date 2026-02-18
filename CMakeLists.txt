@@ -25,6 +25,7 @@ option(G4NUMI_WITH_GEANT4_UIVIS "Build with Geant4 UI and Vis drivers" ON)
 option(G4NUMI_ENABLE_ASSERTS    "Keep asserts enabled even in Release-like builds" ON)
 option(G4NUMI_NO_UNDEFINED      "Link with --no-undefined on ELF platforms" ON)
 option(G4NUMI_BUILD_UPS_FILES   "Install legacy UPS metadata (not recommended)" OFF)
+option(G4NUMI_G4_CXX17_COMPAT "Enable std::binary_function compatibility for Geant4<11 with C++17" ON)
 
 set(DK2NUDATA_DIR "" CACHE PATH "Path to dk2nudata (flux files etc). If set, baked into compile defs.")
 
@@ -75,6 +76,25 @@ if(G4NUMI_WITH_GEANT4_UIVIS)
   find_package(Geant4 10.4 REQUIRED COMPONENTS ui_all vis_all gdml)
 else()
   find_package(Geant4 10.4 REQUIRED COMPONENTS gdml)
+endif()
+
+target_compile_features(g4numi_build_options INTERFACE cxx_std_17)
+
+# ---- Geant4 + C++17 compatibility ----
+if(G4NUMI_G4_CXX17_COMPAT)
+  # Geant4 10.4.x uses std::binary_function in some headers; libc++ removes it in C++17.
+  if(DEFINED Geant4_VERSION AND Geant4_VERSION VERSION_LESS "11.0")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
+      target_compile_definitions(g4numi_build_options INTERFACE
+        _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION
+        _LIBCPP_ENABLE_CXX17_REMOVED_BINDERS
+      )
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      target_compile_definitions(g4numi_build_options INTERFACE
+        _GLIBCXX_USE_DEPRECATED=1
+      )
+    endif()
+  endif()
 endif()
 
 # XercesC (needed for GDML in many Geant4 builds)
