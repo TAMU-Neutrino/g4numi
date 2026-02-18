@@ -32,13 +32,13 @@ for part in particles:
 #        normchi2=chi2/ndf
 #        hchi2.Fill(normchi2)
 #        hchi2prob.Fill(TMath.Prob(chi2,ndf))
-#        print "%s %s has chi2
+#        print("%s %s has chi2)
         ratio=hB.Integral()/hA.Integral()
         hratio.Fill(ratio)
         ohno=""
         if ratio>1.01 or ratio<0.99:
             ohno="OH NO!!!"
-        print "%s %s  %s  has ratio = %f"%(ohno,fA, hname,ratio)
+        print("%s %s  %s  has ratio = %f"%(ohno,fA, hname,ratio))
 #        hr = hB.Clone(hA.GetName()+"_rat")
 #        hr.Divide(hA)
         

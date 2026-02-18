@@ -83,19 +83,19 @@ def main():
   cache_folder = CACHE_PNFS_AREA + str(random.randint(10000,99999)) + "/"
   os.mkdir(cache_folder)
 
-  print "\nTarring up local area..."
+  print("\nTarring up local area...")
   make_tarfile(TARFILE_NAME, ".")
 
   shutil.move(TARFILE_NAME,    cache_folder) # temp file -> remove it from pwd
   shutil.move(g4_macro,        cache_folder) # temp file -> remove it form pwd
   shutil.copy("g4numi_job.sh", cache_folder)
 
-  print "\nTarball of local area:", cache_folder + TARFILE_NAME
+  print("\nTarball of local area:", cache_folder + TARFILE_NAME)
 
   logfile = options.outdir + "/g4numi_{BEAMCONFIG}_{RUN}_\$PROCESS.log".format(BEAMCONFIG = options.beamconfig,
                                                                                RUN        = options.run_number)
 
-  print "\nOutput logfile(s):",logfile
+  print("\nOutput logfile(s):",logfile)
 
   submit_command = ("jobsub_submit {GRID} {MEMORY} -N {NJOBS} -dG4NUMI {OUTDIR} "
       "-G {EXPERIMENT} "
@@ -121,7 +121,7 @@ def main():
   )
 
   #Ship it
-  print "\nSubmitting to grid:\n"+submit_command+"\n"
+  print("\nSubmitting to grid:\n"+submit_command+"\n")
   status = subprocess.call(submit_command, shell=True)
 
 def get_options():
@@ -232,7 +232,7 @@ def finalize_options(options):
     try:
       options.target_position_Z = LEbeamconfig_dict[options.beamconfig][options.playlist] if not options.target_position_Z else options.target_position_Z
     except:
-      print sys.exit("Error! beamconfig-playlist pair not found!")
+      print(sys.exit("Error! beamconfig-playlist pair not found!"))
 
   # Target Water Layer (depreciated in medium energy era)
   if options.target_water_cm != TARGET_WATER_CM:
@@ -245,7 +245,7 @@ def finalize_options(options):
   #POT warning
   if int(options.pot) > 500000: 
     print("!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!")
-    print "options.pot = ",options.pot
+    print("options.pot = ",options.pot)
     print("You're requesting a LOT of POT per job.\n"
       "The grid is optimized for many small jobs instead of a few big ones.\n"
       "Your jobs may timeout. Use at most 500K POT to be safe. \n"

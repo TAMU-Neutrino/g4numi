@@ -43,9 +43,9 @@ for root, dirs, files in os.walk( os.path.join( fluxdir ) ):
       newfile = os.path.join( root, newname )
 
       if verbose or test:
-        print "============ Moving file ============"
-        print "    OLD: %s" % oldfile
-        print "    NEW: %s" % newfile
+        print("============ Moving file ============")
+        print("    OLD: %s" % oldfile)
+        print("    NEW: %s" % newfile)
 
       if test:
         continue
@@ -53,6 +53,6 @@ for root, dirs, files in os.walk( os.path.join( fluxdir ) ):
       try:
         shutil.move( oldfile, newfile )
       except Exception, e:
-        print "  Problem with move : " + str(e)
+        print("  Problem with move : " + str(e))
 
         

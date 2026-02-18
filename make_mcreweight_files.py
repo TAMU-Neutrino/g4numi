@@ -18,7 +18,7 @@ def sum_histograms(file_list, histo_name):
     cntr=0
     for f in file_list:
         h=get_histo(histo_name,f)
-#        print "working on file %i",cntr
+#        print("working on file %i",cntr)
         if cntr==0:
             hsum=h
         else:
@@ -130,15 +130,15 @@ def sum_qeinfo(filelist):
     cm2_per_mb=1e-27
     sigma_factor=1.0/(rho/A * NA * dx * cm2_per_mb) # mb
     sigma_tot = tot/nincident*sigma_factor
-    print "Total reaction cross-section: %3.3f mb"%(sigma_tot)
-    print "  EL    QEL    FRAG   INEL"
-    print "%3.3f%% %3.3f%% %3.3f%% %3.3f%%"%(el_like/float(tot)*100, qe_like/float(tot)*100, frag_like/float(tot)*100, meson_prod/float(tot)*100)
+    print("Total reaction cross-section: %3.3f mb"%(sigma_tot))
+    print("  EL    QEL    FRAG   INEL")
+    print("%3.3f%% %3.3f%% %3.3f%% %3.3f%%"%(el_like/float(tot)*100, qe_like/float(tot)*100, frag_like/float(tot)*100, meson_prod/float(tot)*100))
     
-    print "Inelastic (meson production) cross-section: %3.3f mb"%(sigma_tot*meson_prod/float(tot))
-    print "EL + QEL + FRAG cross-section: %3.3f mb"%(sigma_tot*(el_like+qe_like+frag_like)/float(tot))
+    print("Inelastic (meson production) cross-section: %3.3f mb"%(sigma_tot*meson_prod/float(tot)))
+    print("EL + QEL + FRAG cross-section: %3.3f mb"%(sigma_tot*(el_like+qe_like+frag_like)/float(tot)))
     
-    print "average pi+ multiplicity per production event: %3.3f"%(pip/float(len(filelist)))
-    print "average pi- multiplicity per production event: %3.3f"%(pim/float(len(filelist)))
+    print("average pi+ multiplicity per production event: %3.3f"%(pip/float(len(filelist))))
+    print("average pi- multiplicity per production event: %3.3f"%(pim/float(len(filelist))))
     return meson_prod
 
 #h=get_h1("pip/xF197_pip","/minerva/data/users/kordosky/hp/FTFP_BERT/histos/Yields_FTFP_BERT_pC0158GeV_mc07.root")
@@ -155,10 +155,10 @@ for part,mproduced in zip(particles,masses):
     outname="%s_FTFP_BERT.root"%(part)
     fout=TFile(outname,"RECREATE")
     for mom in momentums:
-        print "Working on ", part, " production  with beam momentum ", mom, "GeV/c"        
+        print("Working on ", part, " production  with beam momentum ", mom, "GeV/c")
         indir="/minerva/data/users/kordosky/hp/FTFP_BERT/histos/"
         file_pat="Yields_FTFP_BERT_pC%04iGeV_mc*.root"%(mom)
-        print indir+file_pat
+        print(indir+file_pat)
         filelist=glob.glob(indir+file_pat)
         pot_per_file=26.2e6
         rho=1.78 #g/cc
@@ -169,7 +169,7 @@ for part,mproduced in zip(particles,masses):
         nincident=nfiles*pot_per_file
         hin_name="xFpT_%s"%(part)
         hout_name="xF_pT_%iGeV"%(mom)
-        print hin_name,hout_name
+        print(hin_name,hout_name)
         hyield=sum_histograms(filelist, hin_name)
         hx=yield_to_xsec(hyield,mom,mproj,mproduced,nincident,rho,A,dx)
         hx.SetName(hout_name)

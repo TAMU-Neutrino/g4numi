@@ -43,7 +43,7 @@ TARGET_POSITION_Z = -143.3 #cm (ME!)
 HORN_WATER_MM    = 1       #mm 
 POT              = 400000
 RUN              = 1
-TEMPLATE         = "{0}/macros/template_ME.mac".format(os.getenv("BEAMSIM"))
+TEMPLATE         = "{0}/macros/template_ME.mac".format(os.getenv("BEAMSIM", "."))
 
 TARGET_WATER_CM = 3      #cm
 BEAMCONFIG        = "me000z200i"
@@ -142,7 +142,7 @@ def main():
     try:
       target_position_Z  = beamconfig_dict[beamconfig][playlist] if not options.target_position_Z else options.target_position_Z
     except:
-      print sys.exit("Error! beamconfig-playlist pair not found!")
+      print(sys.exit("Error! beamconfig-playlist pair not found!"))
   else:
     target_position_Z        = TARGET_POSITION_Z if not options.target_position_Z          else options.target_position_Z #cm
 
@@ -183,7 +183,7 @@ def main():
 
   filestring=open(template,'r').read()
   t=string.Template(filestring)
-  print t.substitute({'do_horn1_new_geometry': do_horn1_new_geometry,
+  print(t.substitute({'do_horn1_new_geometry': do_horn1_new_geometry,
                       'do_horn1_fine_segmentation': do_horn1_fine_segmentation,
                       'horn1_position_X': horn1_position_X,
                       'horn1_position_Y': horn1_position_Y,
@@ -206,7 +206,7 @@ def main():
                       'playlist': playlist,
                       'do_importance_weighting': do_importance_weighting,
                       'outfile':outfile,
-                      'seed':seed})
+                      'seed':seed}))
 
 if __name__ == "__main__":
   sys.exit(main())
