@@ -9,9 +9,11 @@
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Track.hh"
+#include "G4Nucleus.hh"
 #include "G4TrackStatus.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
+#include "G4HadronicProcess.hh"
 #include "G4ios.hh"
 #include "NumiImpWeight.hh"
 #include "NumiTrackInformation.hh"
@@ -155,7 +157,18 @@ G4ClassificationOfNewTrack NumiStackingAction::ClassifyNewTrack(const G4Track * 
         }
      }
   }
-  
+
+  auto hadronicProcess =
+    dynamic_cast<const G4HadronicProcess*>( aTrack->GetCreatorProcess() );
+
+  if ( classification != fKill && hadronicProcess ) {
+    G4Nucleus nucleus = *(hadronicProcess->GetTargetNucleus());
+    G4int fPDGNucleus = 1000000000 +
+      nucleus.GetZ_asInt()*10000 + nucleus.GetA_asInt()*10;
+    NumiTrackInformation* trackInfo=(NumiTrackInformation*)(aTrack->GetUserInformation());
+    if (trackInfo!=0) trackInfo->SetPDGNucleus(fPDGNucleus);
+  }
+
   return classification;
 }
 

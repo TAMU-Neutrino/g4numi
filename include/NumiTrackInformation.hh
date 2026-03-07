@@ -37,7 +37,12 @@ class NumiTrackInformation : public G4VUserTrackInformation
     {return Nimpwt;}
     inline void SetNImpWt(G4double nimpweight)
     {Nimpwt=nimpweight;}
-    
+
+    inline G4int GetPDGNucleus() const
+    {return fPDGNucleus;}
+    inline void SetPDGNucleus(G4int PDGnucleus)
+    {fPDGNucleus=PDGnucleus;}
+
     void Print() const;
 
     void Print(const G4Track *aTrack) const;
@@ -54,6 +59,7 @@ private:
     G4int              decay_code;
     G4int              tgen;
     G4double           Nimpwt;
+    G4int              fPDGNucleus; //used to fill ancestor.nucleus
     G4ThreeVector      fParentMomentumAtThisProduction;
 
 };
