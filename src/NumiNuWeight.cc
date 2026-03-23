@@ -51,15 +51,18 @@ double NumiNuWeight::GetWeight(const data_t* nudata, const vector<double> xdet,
   double parentp = sqrt((nudata->pdPx*nudata->pdPx)+
 			(nudata->pdPy*nudata->pdPy)+
 			(nudata->pdPz*nudata->pdPz));
-  double costh_pardet = (nudata->pdPx*(xdet[0]-nudata->Vx) +
-			 nudata->pdPy*(xdet[1]-nudata->Vy) +
-			 nudata->pdPz*(xdet[2]-nudata->Vz))/(parentp*rad);
+  double emrat = 1.;
+  if (parentp > 1.0e-12) {
+    double costh_pardet = (nudata->pdPx*(xdet[0]-nudata->Vx) +
+			   nudata->pdPy*(xdet[1]-nudata->Vy) +
+			   nudata->pdPz*(xdet[2]-nudata->Vz))/(parentp*rad);
 
-  if (costh_pardet>1.) costh_pardet = 1.;
-  else if (costh_pardet<-1.) costh_pardet = -1.;
-  double theta_pardet = acos(costh_pardet);
+    if (costh_pardet>1.) costh_pardet = 1.;
+    else if (costh_pardet<-1.) costh_pardet = -1.;
+    double theta_pardet = acos(costh_pardet);
 
-  double emrat = 1./(gamma*(1. - beta_mag * cos(theta_pardet)));
+    emrat = 1./(gamma*(1. - beta_mag * cos(theta_pardet)));
+  }
 
   nu_energy = emrat*enuzr;
 
