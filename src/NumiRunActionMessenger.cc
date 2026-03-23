@@ -362,6 +362,12 @@ NumiRunActionMessenger::NumiRunActionMessenger(NumiRunAction* RA)
   KillTracking->SetParameterName("KillTracking",true);
   KillTracking->SetDefaultValue(NumiData->KillTracking);
   KillTracking->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+  KillBackwardTracks = new G4UIcmdWithABool("/NuMI/run/KillBackwardTracks",this);
+  KillBackwardTracks->SetGuidance("Kill non-neutrino tracks with negative pz in stacking.");
+  KillBackwardTracks->SetParameterName("KillBackwardTracks", true);
+  KillBackwardTracks->SetDefaultValue(NumiData->GetKillBackwardTracks());
+  KillBackwardTracks->AvailableForStates(G4State_PreInit, G4State_Idle);
   
   KillTrackingThreshold = new G4UIcmdWithADoubleAndUnit("/NuMI/run/KillTrackingThreshold",this);
   KillTrackingThreshold->SetGuidance("Sets Kill Tracking on or off");
@@ -465,6 +471,7 @@ NumiRunActionMessenger::~NumiRunActionMessenger()
   delete outputZpNtuple;
   delete setZpNtupleFile;
   delete KillTracking;
+  delete KillBackwardTracks;
   delete KillTrackingThreshold;
 
   //playlist name for dkmeta:
@@ -660,6 +667,9 @@ void NumiRunActionMessenger::SetNewValue(G4UIcommand* command,G4String newValues
   if (command== KillTracking){
      NumiData->SetKillTracking(KillTracking->GetNewBoolValue(newValues));
   }
+  if (command== KillBackwardTracks){
+     NumiData->SetKillBackwardTracks(KillBackwardTracks->GetNewBoolValue(newValues));
+  }
   if (command== KillTrackingThreshold){
      NumiData->SetKillTrackingThreshold(KillTrackingThreshold->GetNewDoubleValue(newValues));
   }
@@ -688,4 +698,3 @@ void NumiRunActionMessenger::SetNewValue(G4UIcommand* command,G4String newValues
      NSA->SetKeyVolumeNameTo(newValues);
    }
 }
-

@@ -101,6 +101,7 @@ private:
    G4UIcmdWithABool*           outputTarNtuple;
    G4UIcmdWithAString*         setTarNtupleFile;
    G4UIcmdWithABool*           KillTracking;
+   G4UIcmdWithABool*           KillBackwardTracks;
    G4UIcmdWithADoubleAndUnit*  KillTrackingThreshold;
    //
    // P. L. Use of Geantinos

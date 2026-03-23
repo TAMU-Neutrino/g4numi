@@ -173,6 +173,7 @@ NumiDataInput::NumiDataInput()
   useTestBeam = false;   
   useDecayPipeSelect = false;
   KillTracking = true; // false for ahimmel
+  KillBackwardTracks = true; // DIF-focused optimization; disable for DAR or unbiased flux production
   testTheta = M_PI/6.;
   
    StepLimit = 0.0; 
@@ -1966,5 +1967,4 @@ void NumiDataInput::SetBeamSigmaY(G4double val)
 {
   beamSigmaY = val;
 }
-
 

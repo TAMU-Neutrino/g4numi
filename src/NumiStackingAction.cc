@@ -79,20 +79,24 @@ G4ClassificationOfNewTrack NumiStackingAction::ClassifyNewTrack(const G4Track * 
      classification = fKill;
   }
 
-  //Discard particles with pz<0
+  const G4bool isNeutrino =
+      particleType==G4NeutrinoE::NeutrinoEDefinition() ||
+      particleType==G4NeutrinoMu::NeutrinoMuDefinition() ||
+      particleType==G4NeutrinoTau::NeutrinoTauDefinition() ||
+      particleType==G4AntiNeutrinoE::AntiNeutrinoEDefinition() ||
+      particleType==G4AntiNeutrinoMu::AntiNeutrinoMuDefinition() ||
+      particleType==G4AntiNeutrinoTau::AntiNeutrinoTauDefinition();
+
+  // Discard backward-going non-neutrino tracks in DIF-focused mode.
   G4ThreeVector momentum=aTrack->GetMomentumDirection();
-  if ( !(NumiData->GetSimDRays()) && momentum[2]<0 && (classification != fKill) )  
+  if ( !(NumiData->GetSimDRays()) && NumiData->GetKillBackwardTracks() &&
+       !isNeutrino && momentum[2]<0 && (classification != fKill) )
   {
      classification = fKill;
   }
 
-  //Discard particles with kinetic energy < 1.GeV (that are not neutrinos)
-  if ((particleType!=G4NeutrinoE::NeutrinoEDefinition())&&
-      (particleType!=G4NeutrinoMu::NeutrinoMuDefinition())&&
-      (particleType!=G4NeutrinoTau::NeutrinoTauDefinition())&&
-      (particleType!=G4AntiNeutrinoE::AntiNeutrinoEDefinition())&&
-      (particleType!=G4AntiNeutrinoMu::AntiNeutrinoMuDefinition())&&
-      (particleType!=G4AntiNeutrinoTau::AntiNeutrinoTauDefinition()))
+  // Discard non-neutrino tracks below the configured kinetic-energy threshold.
+  if (!isNeutrino)
     {
        G4double energy = aTrack->GetKineticEnergy();
        if (( NumiData->GetKillTracking() && energy < NumiData->GetKillTrackingThreshold() ) &&
@@ -194,5 +198,4 @@ void NumiStackingAction::PrepareNewEvent()
    } 
 
 }
-
 

@@ -107,6 +107,7 @@ public:
    void SetTarNtupleName(G4String fileName)      { tarNtupleName=fileName; }
    void OutputZpNtuple(G4bool val)              { createZpNtuple=val;}
    void SetKillTracking(G4bool val)             { KillTracking = val;}
+   void SetKillBackwardTracks(G4bool val)       { KillBackwardTracks = val;}
    void SetKillTrackingThreshold(G4double th )  { KillTrackingThreshold=th;}
    void SetjCompare(G4bool _jc);
    void Setg3Chase(G4bool _gc);
@@ -121,6 +122,7 @@ public:
    G4bool   GetOkToRun()                      { return fOkToRun;}
    G4bool   GetPrintGeometry()                { return fPrintGeometry;}
    G4bool   GetKillTracking()                 { return KillTracking;}
+   G4bool   GetKillBackwardTracks()           { return KillBackwardTracks;}
    G4bool   GetMacroBeam()                    { return useMacro;}
    G4bool   GetNuBeam()                       { return fUseNuBeam;}
    G4bool   GetWaterInTgt()                   { return fUseWaterInTgt;}
@@ -276,6 +278,7 @@ public:
    G4String hadmmNtupleName, hadmmNtupleDir, absbkgNtupleName, absbkgNtupleDir;
    G4int fNEvents;
    G4bool KillTracking;
+   G4bool KillBackwardTracks;
    G4String nuNtupleName, tarNtupleName, asciiName, RunNumber, geometry;
    G4Material* DefaultMaterial;
    G4Material* Mon1AbsorberMaterial;
