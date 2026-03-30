@@ -55,6 +55,7 @@
 #include "NumiPrimaryGeneratorAction.hh"
 #include "NumiDataInput.hh"
 #include "NumiNuWeight.hh"
+#include "dk2nu/tree/calcLocationWeights.h"
 #include "NumiTrajectory.hh"
 #include "NumiRunManager.hh"
 #include "NumiSteppingAction.hh"
@@ -1258,7 +1259,7 @@ void NumiAnalysis::FillNeutrinoNtuple(const G4Track& track, const std::vector<G4
       r_det.push_back(NumiData->xdet_near[ii]/CLHEP::cm);
       r_det.push_back(NumiData->ydet_near[ii]/CLHEP::cm);
       r_det.push_back(NumiData->zdet_near[ii]/CLHEP::cm);
-      nuwgh.GetWeight(g4data, r_det,nu_wght,nu_energy);
+      nuwgh.GetWeight(g4data, g4data->Ndecay, r_det,nu_wght,nu_energy);
       g4data->NenergyN[ii] = nu_energy; //in GeV
       g4data->NWtNear[ii]  = nu_wght;
   }
@@ -1274,7 +1275,7 @@ void NumiAnalysis::FillNeutrinoNtuple(const G4Track& track, const std::vector<G4
       r_det.push_back(NumiData->xdet_far[ii]/CLHEP::cm);
       r_det.push_back(NumiData->ydet_far[ii]/CLHEP::cm);
       r_det.push_back(NumiData->zdet_far[ii]/CLHEP::cm);
-      nuwgh.GetWeight(g4data, r_det,nu_wght,nu_energy);
+      nuwgh.GetWeight(g4data, g4data->Ndecay, r_det,nu_wght,nu_energy);
       g4data->NenergyF[ii] = nu_energy; //in GeV
       g4data->NWtFar[ii]   = nu_wght;
 
@@ -1785,33 +1786,27 @@ void NumiAnalysis::FillNeutrinoNtuple(const G4Track& track, const std::vector<G4
   G4double RdecPy = NuMomentum[1]/CLHEP::GeV;
   G4double RdecPz = NuMomentum[2]/CLHEP::GeV;
   G4double RdecE  = track.GetTotalEnergy()/CLHEP::GeV;
+
+  // Use dk2nu calcLocationWeights instead of NumiNuWeight
   bsim::NuRay tmp_nuray_random(RdecPx,RdecPy,RdecPz,RdecE,1.0);
-  vec_nuray.push_back(tmp_nuray_random);
+  this_dk2nu->nuray.clear();
+  this_dk2nu->nuray.push_back(tmp_nuray_random);
 
-  //calculating again...
-  //I will optimize this.
+  // Set decay info so calcLocationWeights can read it
+  this_dk2nu->decay = this_decay;
 
-  //for near detectors:
+  bsim::calcLocationWeights(this_meta, this_dk2nu);
+
+  vec_nuray = this_dk2nu->nuray;
+
+  // Fill legacy near-detector arrays and monitoring histograms from nuray.
+  // nuray index 0 is "random decay"; near detectors start at index 1.
   for(G4int ii=0; ii<NumiData->nNear; ++ii){
-    NumiNuWeight nuwgh;
-    G4double nu_wght;
-    G4double nu_energy;
-    std::vector<double> r_det;
-    r_det.push_back(NumiData->xdet_near[ii]/CLHEP::cm);
-    r_det.push_back(NumiData->ydet_near[ii]/CLHEP::cm);
-    r_det.push_back(NumiData->zdet_near[ii]/CLHEP::cm);
-    nuwgh.GetWeight(g4data, r_det,nu_wght,nu_energy);
-    G4double mom_nu[3];
-    double rad = sqrt((r_det[0]- g4data->Vx)*(r_det[0]- g4data->Vx) +
-                      (r_det[1]- g4data->Vy)*(r_det[1]- g4data->Vy) +
-                      (r_det[2]- g4data->Vz)*(r_det[2]- g4data->Vz));
-    mom_nu[0] = (r_det[0]- g4data->Vx) * nu_energy / rad;
-    mom_nu[1] = (r_det[1]- g4data->Vy) * nu_energy / rad;
-    mom_nu[2] = (r_det[2]- g4data->Vz) * nu_energy / rad;
-    bsim::NuRay tmp_nuray(mom_nu[0],mom_nu[1],mom_nu[2],nu_energy,nu_wght);
-    vec_nuray.push_back(tmp_nuray);
+    G4int nuray_idx = 1 + ii;  // skip random decay at [0]
+    G4double nu_energy = vec_nuray[nuray_idx].E;
+    G4double nu_wght   = vec_nuray[nuray_idx].wgt;
     if ((energyBinSimpleHistoMinerva > 0.) &&
-        (ii == 1) && (nu_energy > 0.)) { // 2nd detector is centered on axis. We
+        (ii == 1) && (nu_energy > 0.)) { // 2nd detector is centered on axis
       size_t iBin = nu_energy/energyBinSimpleHistoMinerva;
       if ((iBin < MinervaNuMuHisto.size()) &&  (particleType->GetPDGEncoding() == 14))
         MinervaNuMuHisto[iBin] += nu_wght*g4data->Nimpwt;
@@ -1819,7 +1814,7 @@ void NumiAnalysis::FillNeutrinoNtuple(const G4Track& track, const std::vector<G4
         MinervaNuMuBarHisto[iBin] += nu_wght*g4data->Nimpwt;
     }
     if ((energyBinSimpleHistoMinerva > 0.) &&
-        (ii == 2) && (nu_energy > 0.)) { // Nova Near Detector off axis..
+        (ii == 2) && (nu_energy > 0.)) { // Nova Near Detector off axis
       size_t iBin = nu_energy/energyBinSimpleHistoMinerva;
       if ((iBin < NovaNearNuMuHisto.size()) &&  (particleType->GetPDGEncoding() == 14))
         NovaNearNuMuHisto[iBin] += nu_wght*g4data->Nimpwt;
@@ -1827,27 +1822,13 @@ void NumiAnalysis::FillNeutrinoNtuple(const G4Track& track, const std::vector<G4
         NovaNearNuMuBarHisto[iBin] += nu_wght*g4data->Nimpwt;
     }
   }
-  //for far detectors:
+  // Fill legacy far-detector monitoring histograms
   for(G4int ii=0; ii<NumiData->nFar; ++ii){
-      NumiNuWeight nuwgh;
-      G4double nu_wght;
-      G4double nu_energy;
-      std::vector<double> r_det;
-      r_det.push_back(NumiData->xdet_far[ii]/CLHEP::cm);
-      r_det.push_back(NumiData->ydet_far[ii]/CLHEP::cm);
-      r_det.push_back(NumiData->zdet_far[ii]/CLHEP::cm);
-      nuwgh.GetWeight(g4data, r_det,nu_wght,nu_energy);
-      double rad = sqrt((r_det[0]- g4data->Vx)*(r_det[0]- g4data->Vx) +
-                        (r_det[1]- g4data->Vy)*(r_det[1]- g4data->Vy) +
-                        (r_det[2]- g4data->Vz)*(r_det[2]- g4data->Vz));
-      G4double mom_nu[3];
-      mom_nu[0] = (r_det[0]- g4data->Vx) * nu_energy / rad;
-      mom_nu[1] = (r_det[1]- g4data->Vy) * nu_energy / rad;
-      mom_nu[2] = (r_det[2]- g4data->Vz) * nu_energy / rad;
-      bsim::NuRay tmp_nuray(mom_nu[0],mom_nu[1],mom_nu[2],nu_energy,nu_wght);
-      vec_nuray.push_back(tmp_nuray);
+      G4int nuray_idx = 1 + NumiData->nNear + ii;
+      G4double nu_energy = vec_nuray[nuray_idx].E;
+      G4double nu_wght   = vec_nuray[nuray_idx].wgt;
       if ((energyBinSimpleHistoMinerva > 0.) &&
-          (ii == 1) && (nu_energy > 0.)) { // Nova Near Detector off axis..
+          (ii == 1) && (nu_energy > 0.)) { // Nova Far Detector off axis
         size_t iBin = nu_energy/0.1;
         if ((iBin < NovaFarNuMuHisto.size()) &&  (particleType->GetPDGEncoding() == 14))
           NovaFarNuMuHisto[iBin] += nu_wght*g4data->Nimpwt;
@@ -1876,7 +1857,7 @@ void NumiAnalysis::FillNeutrinoNtuple(const G4Track& track, const std::vector<G4
   this_dk2nu->ancestor = vec_ancestor;
   this_dk2nu->tgtexit = this_tgtexit;
   this_dk2nu->traj = vec_traj;
-  this_dk2nu->decay = this_decay;
+  // decay and nuray already set above by calcLocationWeights
   this_dk2nu->nuray = vec_nuray;
   this_dk2nu->vint = vec_int;  //Storing the vint
   this_dk2nu->vdbl = vec_dbl; //Storing the vdbl

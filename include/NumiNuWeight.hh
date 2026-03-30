@@ -13,7 +13,7 @@ class NumiNuWeight
     NumiNuWeight();
     ~NumiNuWeight();
  
-    double GetWeight(const data_t* nudata, 
+    double GetWeight(const data_t* nudata, int ndecay,
 		     const std::vector<double> xdet,
 		     double& nu_wght, double& nu_energy);
  

@@ -23,7 +23,8 @@ NumiNuWeight::~NumiNuWeight()
 {
 }
 
-double NumiNuWeight::GetWeight(const data_t* nudata, const vector<double> xdet,
+double NumiNuWeight::GetWeight(const data_t* nudata, int ndecay,
+			       const vector<double> xdet,
 			       double& nu_wght, double& nu_energy)
 {
   //assumes units are GeV and cm
@@ -70,10 +71,11 @@ double NumiNuWeight::GetWeight(const data_t* nudata, const vector<double> xdet,
 
   nu_wght = sangdet * emrat * emrat;
 
-  //done for all except polarized muon
-  // in which case need to modify weight
-  if (nudata->ptype == NumiParticleCode::kMuonPlus || 
-      nudata->ptype == NumiParticleCode::kMuonMinus)
+  // Polarized muon decay correction.
+  // Only apply for tagged muon decay events (ndecay 11 = mu+, 12 = mu-).
+  // Do NOT apply for muon captures (ndecay 0 or 15) where necm can exceed
+  // m_mu/2 and the Michel decay formula is invalid.
+  if (ndecay == 11 || ndecay == 12)
     {
       //boost new neutrino to mu decay cm
       double beta[3];
@@ -82,9 +84,9 @@ double NumiNuWeight::GetWeight(const data_t* nudata, const vector<double> xdet,
       beta[1]=nudata->pdPy / parent_energy;
       beta[2]=nudata->pdPz / parent_energy;
 
-      p_nu[0] = (xdet[0]- nudata->Vx) * nu_energy / CLHEP::rad;
-      p_nu[1] = (xdet[1]- nudata->Vy) * nu_energy / CLHEP::rad;
-      p_nu[2] = (xdet[2]- nudata->Vz) * nu_energy / CLHEP::rad;
+      p_nu[0] = (xdet[0]- nudata->Vx) * nu_energy / rad;
+      p_nu[1] = (xdet[1]- nudata->Vy) * nu_energy / rad;
+      p_nu[2] = (xdet[2]- nudata->Vz) * nu_energy / rad;
 
       double partial = gamma*(beta[0]*p_nu[0]+
 			      beta[1]*p_nu[1]+
@@ -116,7 +118,7 @@ double NumiNuWeight::GetWeight(const data_t* nudata, const vector<double> xdet,
       double wt_ratio = 1.;
       //have to check p_pcm_mp
       //it can be 0 if mupar..=0. (I guess muons created in target??)
-      if (p_pcm_mp[3] != 0. ) {
+      if (p_pcm_mp[3] != 0. && p_dcm_nu[3] != 0.) {
 	//calc new decay angle w.r.t. (anti)spin direction
 	double costh = (p_dcm_nu[0]*p_pcm_mp[0]+ 
 			p_dcm_nu[1]*p_pcm_mp[1]+ 
@@ -134,6 +136,14 @@ double NumiNuWeight::GetWeight(const data_t* nudata, const vector<double> xdet,
 	  double mumass = pTable->FindParticle("mu+")->GetPDGMass()/CLHEP::GeV;
 	  double xnu = 2.* enuzr / mumass;
 	  wt_ratio = ( (3.-2.*xnu) - (1.-2.*xnu)*costh ) / (3.-2.*xnu);
+	  if (wt_ratio < 0.) {
+	    cerr << "NumiNuWeight::GetWeight: negative wt_ratio " << wt_ratio
+		 << " xnu=" << xnu << " costh=" << costh
+		 << " enuzr=" << enuzr << " ndecay=" << ndecay << endl;
+	    nu_wght = 0.;
+	    nu_energy = 0.;
+	    return 0.;
+	  }
 	} else {
 	  cout << "NuWeight:: Bad neutrino type"<<endl;
 	}
